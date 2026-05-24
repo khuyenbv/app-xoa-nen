@@ -79,7 +79,7 @@ if uploaded_file is not None:
         
         if st.button("🚀 Khởi Tạo Mã QR Chuyển Khoản (5.000đ)"):
             try:
-                # Cấu trúc dữ liệu dạng Dictionary mới theo chuẩn nâng cấp của PayOS
+                # Đã sửa lại dấu đóng ngoặc nhọn chuẩn xác ở cuối Dictionary này
                 payment_data = {
                     "orderCode": st.session_state.order_id,
                     "amount": 5000,
@@ -93,7 +93,7 @@ if uploaded_file is not None:
                     ],
                     "cancelUrl": "https://www.bevietkhuyen.vn",
                     "returnUrl": "https://www.bevietkhuyen.vn"
-                )
+                }
                 
                 # Gọi API tạo link trực tiếp
                 payment_link_response = payos.createPaymentLink(payment_data)
