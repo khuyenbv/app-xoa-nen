@@ -79,45 +79,32 @@ if uploaded_file is not None:
         
         if st.button("🚀 Khởi Tạo Mã QR Chuyển Khoản (5.000đ)"):
             try:
-                # Đã sửa lại dấu đóng ngoặc nhọn chuẩn xác ở cuối Dictionary này
-                payment_data = {
-                    "orderCode": st.session_state.order_id,
-                    "amount": 5000,
-                    "description": f"Thanh toan {st.session_state.order_id}",
-                    "items": [
-                        {
-                            "name": "Ủng hộ tách nền ảnh",
-                            "quantity": 1,
-                            "price": 5000
-                        }
-                    ],
-                    "cancelUrl": "https://www.bevietkhuyen.vn",
-                    "returnUrl": "https://www.bevietkhuyen.vn"
-                }
+                # 1. Định nghĩa danh sách các mặt hàng (items) đúng cấu trúc mảng
+                items_list = [
+                    {
+                        "name": "Ủng hộ tách nền ảnh",
+                        "quantity": 1,
+                        "price": 5000
+                    }
+                ]
                 
-                # Gọi API tạo link trực tiếp
+                # 2. Ép kiểu dữ liệu sang cấu trúc PaymentData bắt buộc của thư viện PayOS bản mới
+                from payos import PaymentData
+                payment_data = PaymentData(
+                    orderCode=st.session_state.order_id,
+                    amount=5000,
+                    description=f"Thanh toan {st.session_state.order_id}",
+                    items=items_list,
+                    cancelUrl="https://www.bevietkhuyen.vn",
+                    returnUrl="https://www.bevietkhuyen.vn"
+                )
+                
+                # 3. Thực thi gọi API tạo link chính thức
                 payment_link_response = payos.createPaymentLink(payment_data)
                 st.session_state.checkout_url = payment_link_response.checkoutUrl
                 st.success("Tạo mã QR thành công!")
             except Exception as e:
                 st.error(f"Lỗi kết nối cổng PayOS: {e}")
-
-        if st.session_state.checkout_url:
-            st.info("👉 Anh vui lòng bấm vào đường link bên dưới để quét mã QR ngân hàng:")
-            st.markdown(f'[**Bấm vào đây để mở trang quét mã QR chuyển khoản**]({st.session_state.checkout_url})')
-            
-        if st.button("🔄 Tôi Đã Chuyển Khoản Thành Công - Kiểm Tra Ngay"):
-            with st.spinner('Đang kết nối ngân hàng đối soát...'):
-                try:
-                    payment_info = payos.getPaymentLinkInformation(st.session_state.order_id)
-                    if payment_info.status == "PAID":
-                        st.session_state.payment_success = True
-                        st.success("🎉 Giao dịch thành công! Cảm ơn anh rất nhiều.")
-                        st.rerun()
-                    else:
-                        st.error(f"Hệ thống chưa thấy khoản nộp 5.000đ. Trạng thái hiện tại: {payment_info.status}")
-                except Exception as e:
-                    st.error("Chưa tìm thấy giao dịch khớp nội dung hoặc phiên quét mã đã hết hạn.")
 
     # =========================================================================
     # 4. TRẢ FILE KHI THANH TOÁN XONG
