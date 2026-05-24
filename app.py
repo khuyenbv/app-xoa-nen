@@ -77,23 +77,27 @@ if uploaded_file is not None:
     if not st.session_state.payment_success:
         st.warning("⚠️ Vui lòng ủng hộ 5.000đ để hiển thị nút tải ảnh không nền.")
         
-        if st.button("🚀 Khởi Tạo Mã QR Chuyển Khoản (5.000đ)"):
+       if st.button("🚀 Khởi Tạo Mã QR Chuyển Khoản (5.000đ)"):
             try:
-                # TRUYỀN THẲNG DICTIONARY NÀY VÀO HÀM - ĐÂY LÀ CHUẨN MỚI NHẤT CỦA PAYOS 
-                payment_link_response = payos.createPaymentLink(
-                    orderCode=st.session_state.order_id,
-                    amount=5000,
-                    description=f"Thanh toan {st.session_state.order_id}",
-                    items=[
+                # 1. Gom tất cả dữ liệu đơn hàng vào MỘT biến Dictionary duy nhất
+                payment_data = {
+                    "orderCode": st.session_state.order_id,
+                    "amount": 5000,
+                    "description": f"Thanh toan {st.session_state.order_id}",
+                    "items": [
                         {
                             "name": "Ủng hộ tách nền ảnh",
                             "quantity": 1,
                             "price": 5000
                         }
                     ],
-                    cancelUrl="https://www.bevietkhuyen.vn",
-                    returnUrl="https://www.bevietkhuyen.vn"
-                )
+                    "cancelUrl": "https://www.bevietkhuyen.vn",
+                    "returnUrl": "https://www.bevietkhuyen.vn"
+                }
+                
+                # 2. Truyền DUY NHẤT một biến này vào hàm (Không tách rời tham số nữa)
+                payment_link_response = payos.createPaymentLink(payment_data)
+                
                 st.session_state.checkout_url = payment_link_response.checkoutUrl
                 st.success("Tạo mã QR thành công!")
             except Exception as e:
