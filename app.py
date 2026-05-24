@@ -3,7 +3,7 @@ import io
 import time
 import requests
 
-# CHỈ IMPORT ĐÚNG MỘT MÌNH PAYOS - TUYỆT ĐỐI KHÔNG IMPORT CÁC KIỂU DATA LỖI
+# Chỉ import đúng một mình PayOS
 try:
     from PIL import Image
     from payos import PayOS
@@ -19,7 +19,7 @@ PAYOS_CLIENT_ID = "c45cca4a-1851-4c2d-bd02-c8d49ffb5115"
 PAYOS_API_KEY = "8738d185-b3c2-4a8b-b90e-2f844fed181e"
 PAYOS_CHECKSUM_KEY = "74c0218fe5596d1535cea52b8d8c51abe3a51a2a2cfaafe837fcc50f7cdbc642"
 
-# API Key xóa nền thật của Photoroom (Anh điền mã prod_... của anh vào đây nhé)
+# API Key xóa nền thật của Photoroom (Anh điền mã prod_... vào đây nhé)
 PHOTOROOM_API_KEY = "sandbox_sk_pr_default_003c16913203ef0e14a2d7466a06d49a4f6511e2" 
 
 # Khởi tạo cổng kết nối PayOS an toàn
@@ -77,9 +77,9 @@ if uploaded_file is not None:
     if not st.session_state.payment_success:
         st.warning("⚠️ Vui lòng ủng hộ 5.000đ để hiển thị nút tải ảnh không nền.")
         
-    if st.button("🚀 Khởi Tạo Mã QR Chuyển Khoản (5.000đ)"):
+        if st.button("🚀 Khởi Tạo Mã QR Chuyển Khoản (5.000đ)"):
             try:
-                # 1. Gom tất cả dữ liệu đơn hàng vào MỘT biến Dictionary duy nhất
+                # Gom tất cả dữ liệu đơn hàng vào MỘT biến duy nhất theo chuẩn PayOS mới
                 payment_data = {
                     "orderCode": st.session_state.order_id,
                     "amount": 5000,
@@ -95,9 +95,8 @@ if uploaded_file is not None:
                     "returnUrl": "https://www.bevietkhuyen.vn"
                 }
                 
-                # 2. Truyền DUY NHẤT một biến này vào hàm (Không tách rời tham số nữa)
+                # Gọi API tạo link chính thức
                 payment_link_response = payos.createPaymentLink(payment_data)
-                
                 st.session_state.checkout_url = payment_link_response.checkoutUrl
                 st.success("Tạo mã QR thành công!")
             except Exception as e:
