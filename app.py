@@ -20,7 +20,7 @@ PAYOS_API_KEY = "8738d185-b3c2-4a8b-b90e-2f844fed181e"
 PAYOS_CHECKSUM_KEY = "74c0218fe5596d1535cea52b8d8c51abe3a51a2a2cfaafe837fcc50f7cdbc642"
 
 # API Key xóa nền thật của Photoroom (Anh điền mã prod_... của anh vào đây nhé)
-PHOTOROOM_API_KEY = "sk_pr_default_003c16913203ef0e14a2d7466a06d49a4f6511e2" 
+PHOTOROOM_API_KEY = "sandbox_sk_pr_default_003c16913203ef0e14a2d7466a06d49a4f6511e2" 
 
 # Khởi tạo cổng kết nối PayOS an toàn
 @st.cache_resource
