@@ -77,7 +77,7 @@ if uploaded_file is not None:
     if not st.session_state.payment_success:
         st.warning("⚠️ Vui lòng ủng hộ 5.000đ để hiển thị nút tải ảnh không nền.")
         
-       if st.button("🚀 Khởi Tạo Mã QR Chuyển Khoản (5.000đ)"):
+    if st.button("🚀 Khởi Tạo Mã QR Chuyển Khoản (5.000đ)"):
             try:
                 # 1. Gom tất cả dữ liệu đơn hàng vào MỘT biến Dictionary duy nhất
                 payment_data = {
