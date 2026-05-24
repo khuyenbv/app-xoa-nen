@@ -1,5 +1,5 @@
-streamlit
-rembg
-payos
-Pillow
-requests
+streamlit==1.35.0
+rembg==2.0.53
+payos==1.0.1
+Pillow==10.3.0
+requests==2.32.2
