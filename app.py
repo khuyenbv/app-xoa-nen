@@ -3,10 +3,10 @@ import io
 import time
 import requests
 
-# Bọc kiểm tra nạp thư viện tiêu chuẩn
+# Bọc kiểm tra nạp thư viện tiêu chuẩn để tuyệt đối không trắng trang
 try:
     from PIL import Image
-    from payos import PayOS, ItemData, PaymentData
+    from payos import PayOS
 except ImportError as e:
     st.error(f"Thiếu thư viện hệ thống: {e}")
     st.stop()
@@ -19,15 +19,19 @@ PAYOS_CLIENT_ID = "c45cca4a-1851-4c2d-bd02-c8d49ffb5115"
 PAYOS_API_KEY = "8738d185-b3c2-4a8b-b90e-2f844fed181e"
 PAYOS_CHECKSUM_KEY = "74c0218fe5596d1535cea52b8d8c51abe3a51a2a2cfaafe837fcc50f7cdbc642"
 
-# API Key xóa nền miễn phí của Photoroom (Em đã cấu hình sẵn một key để anh dùng luôn)
+# API Key xóa nền miễn phí của Photoroom
 PHOTOROOM_API_KEY = "sandbox_99346618be2542a9b343e7dfbc31698a" 
 
-# Khởi tạo cổng kết nối PayOS
+# Khởi tạo cổng kết nối PayOS an toàn
 @st.cache_resource
 def init_payos():
     return PayOS(client_id=PAYOS_CLIENT_ID, api_key=PAYOS_API_KEY, checksum_key=PAYOS_CHECKSUM_KEY)
 
-payos = init_payos()
+try:
+    payos = init_payos()
+except Exception as init_err:
+    st.error(f"Lỗi khởi tạo cấu hình PayOS: {init_err}")
+    st.stop()
 
 st.set_page_config(page_title="AI Xóa Nền - Ủng hộ Trà Đá", layout="centered")
 st.title("✂️ Công cụ AI Xóa Nền Ảnh Tự Động")
@@ -47,13 +51,10 @@ if 'checkout_url' not in st.session_state:
 uploaded_file = st.file_uploader("Chọn một bức ảnh từ thiết bị của bạn...", type=["jpg", "jpeg", "png"])
 
 if uploaded_file is not None:
-    # Hiển thị ảnh gốc
     st.image(uploaded_file, caption='Ảnh gốc của bạn', use_column_width=True)
     
-    # Kịch bản gọi API xóa nền siêu tốc (Không dùng rembg nên không lo lỗi)
     with st.spinner('AI đang bóc tách nền bằng công nghệ siêu tốc...'):
         try:
-            # Gửi ảnh lên cổng xử lý đồ họa của Photoroom
             files = {'image_file': uploaded_file.getvalue()}
             headers = {'x-api-key': PHOTOROOM_API_KEY}
             response = requests.post('https://sdk.photoroom.com/v1/segment', files=files, headers=headers)
@@ -78,15 +79,23 @@ if uploaded_file is not None:
         
         if st.button("🚀 Khởi Tạo Mã QR Chuyển Khoản (5.000đ)"):
             try:
-                item = ItemData(name="Ủng hộ tách nền ảnh", quantity=1, price=5000)
-                payment_data = PaymentData(
-                    orderCode=st.session_state.order_id,
-                    amount=5000,
-                    description=f"Thanh toan {st.session_state.order_id}",
-                    items=[item],
-                    cancelUrl="https://www.bevietkhuyen.vn",
-                    returnUrl="https://www.bevietkhuyen.vn"
+                # Cấu trúc dữ liệu dạng Dictionary mới theo chuẩn nâng cấp của PayOS
+                payment_data = {
+                    "orderCode": st.session_state.order_id,
+                    "amount": 5000,
+                    "description": f"Thanh toan {st.session_state.order_id}",
+                    "items": [
+                        {
+                            "name": "Ủng hộ tách nền ảnh",
+                            "quantity": 1,
+                            "price": 5000
+                        }
+                    ],
+                    "cancelUrl": "https://www.bevietkhuyen.vn",
+                    "returnUrl": "https://www.bevietkhuyen.vn"
                 )
+                
+                # Gọi API tạo link trực tiếp
                 payment_link_response = payos.createPaymentLink(payment_data)
                 st.session_state.checkout_url = payment_link_response.checkoutUrl
                 st.success("Tạo mã QR thành công!")
@@ -108,7 +117,7 @@ if uploaded_file is not None:
                     else:
                         st.error(f"Hệ thống chưa thấy khoản nộp 5.000đ. Trạng thái hiện tại: {payment_info.status}")
                 except Exception as e:
-                    st.error("Chưa tìm thấy giao dịch khớp nội dung.")
+                    st.error("Chưa tìm thấy giao dịch khớp nội dung hoặc phiên quét mã đã hết hạn.")
 
     # =========================================================================
     # 4. TRẢ FILE KHI THANH TOÁN XONG
